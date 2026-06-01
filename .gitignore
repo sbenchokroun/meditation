@@ -1,5 +1,6 @@
 raw_data/
 .env
+notebooks/
 
 # OS generated files #
 ######################
@@ -10,7 +11,7 @@ __MACOSX
 __pycache__
 *checkpoint.ipynb
 *.ipynb_checkpoints
-*.ipynb
+**/*.ipynb
 
 # inteliJ #
 .idea
