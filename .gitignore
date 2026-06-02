@@ -29,3 +29,6 @@ mlruns
 
 # Challengify - test challengification files
 *_challengify*
+
+# ignore Zone.Identifier
+*:Zone.Identifier
