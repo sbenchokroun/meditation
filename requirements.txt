@@ -1,6 +1,6 @@
+huggingface_hub
+google-cloud-storage
 wheel
-nbresult
-colorama
 ipdb
 ipykernel
 yapf
