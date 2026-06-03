@@ -1,3 +1,4 @@
+colorama
 huggingface_hub
 google-cloud-storage
 wheel
