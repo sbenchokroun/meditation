@@ -1,5 +1,14 @@
-raw_data/
+# Environments
 .env
+.venv
+.envrc
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+raw_data/
 notebooks/
 
 # OS generated files #
