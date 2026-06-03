@@ -5,28 +5,15 @@ reinstall_package:
 	@pip uninstall -y taxifare || :
 	@pip install -e .
 
-run_preprocess:
-	python -c 'from taxifare.interface.main import preprocess; preprocess()'
 
-run_train:
-	python -c 'from taxifare.interface.main import train; train()'
 
-run_pred:
-	python -c 'from taxifare.interface.main import pred; pred()'
-
-run_evaluate:
-	python -c 'from taxifare.interface.main import evaluate; evaluate()'
-
-run_all: run_preprocess run_train run_pred run_evaluate
-
-run_workflow:
-	PREFECT__LOGGING__LEVEL=${PREFECT_LOG_LEVEL} python -m taxifare.interface.workflow
-
-run_api:
-	uvicorn taxifare.api.fast:app --reload
 
 
 ################### DATA SOURCES ACTIONS ################
+save_data_into_bucket:
+	python -c 'from meditation.ml_logic.data import save_data_into_bucket; save_data_into_bucket()'
+
+
 # Exemple taxifaire
 # Data sources: targets for monthly data imports
 ML_DIR=~/.lewagon/mlops
