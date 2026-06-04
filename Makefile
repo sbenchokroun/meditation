@@ -5,8 +5,8 @@ reinstall_package:
 	@pip uninstall -y taxifare || :
 	@pip install -e .
 
-
-
+install_requirements:
+	@pip install -r requirements.txt
 
 
 ################### DATA SOURCES ACTIONS ################
