@@ -22,7 +22,7 @@ def path_data(sujets=list, labels=list, sessions=list) -> dict:
                 dict[f'{sujet}_{label}_{session}'] = f'../raw_data/derivatives/ml_preproc_data/sub-{sujet}/sub-{sujet}_ses-{session}_task-{label}_eeg_preproc.npy'
     return dict
 
-def load_data_dict(paths=dict, window_size=1000, start=0):
+def load_data_dict(paths=dict, window_size=1000, step=1000, start=0):
 
     """"
     - renvoie un tuple contenant X de shape (nb de seq, window_size, nb de canaux)
@@ -44,7 +44,7 @@ def load_data_dict(paths=dict, window_size=1000, start=0):
             print(f'label {label} does not exist')
             return None
 
-    def slice_data(data, window_size=1000, start=0) -> list:
+    def slice_data(data, window_size=1000, step=1000, start=0) -> list:
 
         """Renvoie une liste de la données séparée (sur les lignes) de chaque window_size.
         """
@@ -53,7 +53,7 @@ def load_data_dict(paths=dict, window_size=1000, start=0):
         index = start
         while index + window_size <= np.shape(data)[0]:
             data_sliced.append(data[index : index + window_size,:])
-            index = index + window_size
+            index = index + step
         return data_sliced
 
     X_final = []
@@ -61,14 +61,14 @@ def load_data_dict(paths=dict, window_size=1000, start=0):
 
     for key, path in paths.items():
         data = np.load(path).T
-        X = np.array(slice_data(data, window_size=window_size, start=start))
+        X = np.array(slice_data(data, window_size=window_size, step=step, start=start))
         y = np.array([is_medit(key) for i in range(len(X))])
         X_final.extend(X)
         y_final.extend(y)
 
     return np.array(X_final), np.array(y_final)
 
-def load_data(sujets=None, labels=list, sessions=['premedita'], window_size=1000, start=0, split=None) -> tuple:
+def load_data(sujets=None, labels=list, sessions=['premedita'], window_size=1000, step=1000, start=0, split=None) -> tuple:
 
     """"
     - renvoie un tuple contenant :
@@ -80,6 +80,9 @@ def load_data(sujets=None, labels=list, sessions=['premedita'], window_size=1000
     - sessions : liste de str parmi {'premedita', 'posmedita'}
     - start correspond au début de la 1ère séquence, par défaut à 0
     - window_size correspond à la largueur d'une sequence, 1000 points (4s) par défaut
+    - step correspond au décalage de chaque window
+    - split permet d'assigner automatiquement des sujets (si sujets=None),
+      parmi {'train', 'val', 'test', 'train_small', 'val_small', 'test_small'}
 
     """
 
@@ -101,5 +104,5 @@ def load_data(sujets=None, labels=list, sessions=['premedita'], window_size=1000
             return None
 
     return load_data_dict(path_data(sujets=sujets, labels=labels, sessions=sessions),
-                          window_size=window_size,
+                          window_size=window_size, step=step,
                           start=start)
