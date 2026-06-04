@@ -1,6 +1,7 @@
 import time
 import tracemalloc
 from meditation.params import *
+import matplotlib.pyplot as plt
 
 def simple_time_and_memory_tracker(method):
 
@@ -23,3 +24,41 @@ def simple_time_and_memory_tracker(method):
         return result
 
     return method_with_trackers
+
+
+def plot_loss_accuracy(history,ymax_loss_, ymax_accuracy):
+    # Setting figures
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13,4))
+
+    # Create the plots
+    ax1.plot(history.history['loss'])
+    ax1.plot(history.history['val_loss'])
+
+    ax2.plot(history.history['accuracy'])
+    ax2.plot(history.history['val_accuracy'])
+
+    # Set titles and labels
+    ax1.set_title('Model loss')
+    ax1.set_ylabel('Loss')
+    ax1.set_xlabel('Epoch')
+
+    ax2.set_title('accuracy')
+    ax2.set_ylabel('val_accuracy')
+    ax2.set_xlabel('Epoch')
+
+    # Set limits for y-axes
+    ax1.set_ylim(ymin=0, ymax=ymax_loss_)
+    ax2.set_ylim(ymin=0, ymax=ymax_accuracy)
+
+    # Generate legends
+    ax1.legend(['Train', 'Validation'], loc='best')
+    ax2.legend(['Train', 'Validation'], loc='best')
+
+    # Show grids
+    ax1.grid(axis="x", linewidth=0.5)
+    ax1.grid(axis="y", linewidth=0.5)
+
+    ax2.grid(axis="x", linewidth=0.5)
+    ax2.grid(axis="y", linewidth=0.5)
+
+    plt.show()
