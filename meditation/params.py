@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from pathlib import Path
 
 ##################  VARIABLES  ##################
 TRAIN = np.arange(1,51)
@@ -14,6 +15,7 @@ TEST_SMALL = np.arange(26,31)
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), ".meditation", "mlops", "data")
 LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".meditation", "mlops", "training_outputs")
 
+ROOT = Path.cwd().parent
 
 
 ################## VALIDATIONS #################

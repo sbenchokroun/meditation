@@ -15,11 +15,11 @@ def path_data(sujets=list, labels=list, sessions=list) -> dict:
         else:
             sujets_str.append('0'+str(sujet))
 
-    dict = {f'{sujets_str[0]}_{labels[0]}_{sessions[0]}': f'../raw_data/derivatives/ml_preproc_data/sub-{sujets_str[0]}/sub-{sujets_str[0]}_ses-{sessions[0]}_task-{labels[0]}_eeg_preproc.npy'}
+    dict = {f'{sujets_str[0]}_{labels[0]}_{sessions[0]}': f'{ROOT}/raw_data/derivatives/ml_preproc_data/sub-{sujets_str[0]}/sub-{sujets_str[0]}_ses-{sessions[0]}_task-{labels[0]}_eeg_preproc.npy'}
     for sujet in sujets_str:
         for label in labels:
             for session in sessions:
-                dict[f'{sujet}_{label}_{session}'] = f'../raw_data/derivatives/ml_preproc_data/sub-{sujet}/sub-{sujet}_ses-{session}_task-{label}_eeg_preproc.npy'
+                dict[f'{sujet}_{label}_{session}'] = f'{ROOT}/raw_data/derivatives/ml_preproc_data/sub-{sujet}/sub-{sujet}_ses-{session}_task-{label}_eeg_preproc.npy'
     return dict
 
 def load_data_dict(paths=dict, window_size=1000, step=1000, start=0):
