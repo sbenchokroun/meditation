@@ -2,7 +2,7 @@
 #################### PACKAGE ACTIONS ###################
 # Exemple taxifaire
 reinstall_package:
-	@pip uninstall -y taxifare || :
+	@pip uninstall -y meditation || :
 	@pip install -e .
 
 install_requirements:
