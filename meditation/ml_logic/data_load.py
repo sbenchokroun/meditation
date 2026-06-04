@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from meditation.params import *
 
 def path_data(sujets=list, labels=list, sessions=list) -> dict:
 
@@ -67,7 +68,7 @@ def load_data_dict(paths=dict, window_size=1000, start=0):
 
     return np.array(X_final), np.array(y_final)
 
-def load_data(sujets=list, labels=list, sessions=['premedita'], window_size=1000, start=0) -> tuple:
+def load_data(sujets=None, labels=list, sessions=['premedita'], window_size=1000, start=0, split=None) -> tuple:
 
     """"
     - renvoie un tuple contenant :
@@ -81,6 +82,23 @@ def load_data(sujets=list, labels=list, sessions=['premedita'], window_size=1000
     - window_size correspond à la largueur d'une sequence, 1000 points (4s) par défaut
 
     """
+
+    if sujets == None:
+        if split == 'train':
+            sujets = TRAIN
+        elif split == 'val':
+            sujets = VAL
+        elif split == 'test':
+            sujets = TEST
+        elif split == 'train_small':
+            sujets = TRAIN_SMALL
+        elif split == 'val_small':
+            sujets = VAL_SMALL
+        elif split == 'test_small':
+            sujets = TEST_SMALL
+        else:
+            print('no subject selected')
+            return None
 
     return load_data_dict(path_data(sujets=sujets, labels=labels, sessions=sessions),
                           window_size=window_size,
