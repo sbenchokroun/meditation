@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from meditation.params import *
 
-def path_data(sujets=list, labels=list, sessions=list) -> dict:
+def path_data(sujets=list, labels=list, sessions=list, root=ROOT) -> dict:
 
     """Pour une liste de sujets (int) donnés, et la phase et session correspondante,
     renvoie un dictionnaire ayant pour clé ces informations et pour valeur le PATH
@@ -15,12 +15,24 @@ def path_data(sujets=list, labels=list, sessions=list) -> dict:
         else:
             sujets_str.append('0'+str(sujet))
 
-    dict = {f'{sujets_str[0]}_{labels[0]}_{sessions[0]}': f'{ROOT}/raw_data/derivatives/ml_preproc_data/sub-{sujets_str[0]}/sub-{sujets_str[0]}_ses-{sessions[0]}_task-{labels[0]}_eeg_preproc.npy'}
+    dict = {f'{sujets_str[0]}_{labels[0]}_{sessions[0]}': f'{root}/raw_data/derivatives/ml_preproc_data/sub-{sujets_str[0]}/sub-{sujets_str[0]}_ses-{sessions[0]}_task-{labels[0]}_eeg_preproc.npy'}
     for sujet in sujets_str:
         for label in labels:
             for session in sessions:
-                dict[f'{sujet}_{label}_{session}'] = f'{ROOT}/raw_data/derivatives/ml_preproc_data/sub-{sujet}/sub-{sujet}_ses-{session}_task-{label}_eeg_preproc.npy'
+                dict[f'{sujet}_{label}_{session}'] = f'{root}/raw_data/derivatives/ml_preproc_data/sub-{sujet}/sub-{sujet}_ses-{session}_task-{label}_eeg_preproc.npy'
     return dict
+
+def slice_data(data, window_size=1000, step=1000, start=0) -> list:
+
+        """Renvoie une liste de la données séparée (sur les lignes) de chaque window_size.
+        """
+
+        data_sliced = []
+        index = start
+        while index + window_size <= np.shape(data)[0]:
+            data_sliced.append(data[index : index + window_size,:])
+            index = index + step
+        return data_sliced
 
 def load_data_dict(paths=dict, window_size=1000, step=1000, start=0):
 
@@ -44,17 +56,6 @@ def load_data_dict(paths=dict, window_size=1000, step=1000, start=0):
             print(f'label {label} does not exist')
             return None
 
-    def slice_data(data, window_size=1000, step=1000, start=0) -> list:
-
-        """Renvoie une liste de la données séparée (sur les lignes) de chaque window_size.
-        """
-
-        data_sliced = []
-        index = start
-        while index + window_size <= np.shape(data)[0]:
-            data_sliced.append(data[index : index + window_size,:])
-            index = index + step
-        return data_sliced
 
     X_final = []
     y_final = []
@@ -74,7 +75,8 @@ def load_data(sujets=None,
               window_size=1000,
               step=1000,
               start=0,
-              split=None) -> tuple:
+              split=None,
+              root=ROOT) -> tuple:
 
     """"
     - renvoie un tuple contenant :
@@ -109,6 +111,6 @@ def load_data(sujets=None,
             print('no subject selected')
             return None
 
-    return load_data_dict(path_data(sujets=sujets, labels=labels, sessions=sessions),
+    return load_data_dict(path_data(sujets=sujets, labels=labels, sessions=sessions, root=root),
                           window_size=window_size, step=step,
                           start=start)
