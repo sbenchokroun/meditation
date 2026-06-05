@@ -68,7 +68,13 @@ def load_data_dict(paths=dict, window_size=1000, step=1000, start=0):
 
     return np.array(X_final), np.array(y_final)
 
-def load_data(sujets=None, labels=list, sessions=['premedita'], window_size=1000, step=1000, start=0, split=None) -> tuple:
+def load_data(sujets=None,
+              labels=['Medita', 'slMedita', 'restCE01', 'restCE02', 'restOE'],
+              sessions=['premedita'],
+              window_size=1000,
+              step=1000,
+              start=0,
+              split=None) -> tuple:
 
     """"
     - renvoie un tuple contenant :
