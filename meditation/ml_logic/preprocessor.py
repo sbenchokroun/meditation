@@ -5,9 +5,7 @@
 import numpy as np
 import pandas as pd
 from colorama import Fore, Style
-from sklearn.pipeline import make_pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import FunctionTransformer
+from sklearn.preprocessing import StandardScaler
 from scipy.signal import welch
 
 
@@ -39,7 +37,7 @@ def preprocess_normalisation_features(X) -> np.ndarray:
     return X_processed
 
 
-def preprocess_features_extract_psd(X, bands=PSD_BANDS, fs=FS):
+def preprocess_features_extract_psd(X: np.ndarray, bands=PSD_BANDS, fs=FS):
     """
     Calcule la puissance moyenne par bande fréquentielle et par canal.
 
@@ -53,9 +51,8 @@ def preprocess_features_extract_psd(X, bands=PSD_BANDS, fs=FS):
         psd[:, :, (freqs >= lo) & (freqs < hi)].mean(axis=-1)
         for lo, hi in bands                         # (N, C) par bande
     ]
-    print("✅ X_processed, with shape", features.shape)
-    return np.concatenate(features, axis=1)         # (N, 320)
-
+    scaler = StandardScaler()
+    return scaler.fit_transform(np.concatenate(features, axis=1))
 
 def transpose_if_needed(X):
     """(N, T, C) → (N, C, T)  """

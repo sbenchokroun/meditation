@@ -2,11 +2,12 @@ import glob
 import os
 import time
 import pickle
+import joblib
 
 from colorama import Fore, Style
 from tensorflow import keras
 from google.cloud import storage
-
+from meditation.params import *
 
 
 def save_results(params: dict, metrics: dict) -> None:
@@ -15,7 +16,7 @@ def save_results(params: dict, metrics: dict) -> None:
     Persist params & metrics locally on the hard drive at
     "{LOCAL_REGISTRY_PATH}/params/{current_timestamp}.pickle"
     "{LOCAL_REGISTRY_PATH}/metrics/{current_timestamp}.pickle"
-    - (unit 03 only) if MODEL_TARGET='mlflow', also persist them on MLflow
+
     """
 
     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -46,7 +47,8 @@ def save_model(model: keras.Model = None) -> None:
 
     # Save model locally
     model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.h5")
-    model.save(model_path)
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    joblib.dump(model, model_path)
 
     print("✅ Model saved locally")
 
@@ -91,7 +93,7 @@ def load_model(stage="Production") -> keras.Model:
 
         print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
 
-        latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+        latest_model = joblib.load(most_recent_model_path_on_disk)
 
         print("✅ Model loaded from local disk")
 

@@ -9,6 +9,11 @@ install_requirements:
 	@pip install -r requirements.txt
 
 
+
+################### MAIN ACTIONS ################
+train_task1:
+	python -c 'from meditation.interface.main import train_task1; train_task1()'
+
 ################### DATA SOURCES ACTIONS ################
 save_data_into_bucket:
 	python -c 'from meditation.ml_logic.data import save_data_into_bucket; save_data_into_bucket()'

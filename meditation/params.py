@@ -3,6 +3,12 @@ import numpy as np
 from pathlib import Path
 
 ##################  VARIABLES  ##################
+MODEL_TARGET = os.environ.get("MODEL_TARGET")
+GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
+GCP_PROJECT_WAGON = os.environ.get("GCP_PROJECT_WAGON")
+GCP_REGION = os.environ.get("GCP_REGION")
+GCS_BUCKET_NAME=os.environ.get("GCS_BUCKET_NAME")
+GCS_DESTINATION_PREFIX=os.environ.get("GCS_DESTINATION_PREFIX")
 TRAIN = np.arange(1,51)
 VAL = np.arange(51,61)
 TEST = np.arange(61,75)
