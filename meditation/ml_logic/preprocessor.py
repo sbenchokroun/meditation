@@ -39,6 +39,12 @@ def preprocess_normalisation_features(X) -> np.ndarray:
 
 
 def preprocess_features_extract_psd(X: np.ndarray, bands=PSD_BANDS, fs=FS, scaler=None):
+    """
+    Calcule la puissance moyenne par bande fréquentielle et par canal.
+
+    X      : (N, C, T)   après transpose_if_needed
+    retour : (N, B*C)  = (N, 320)
+    """
     X = transpose_if_needed(X)
     freqs, psd = welch(X, fs=fs, axis=-1)
     features = [
