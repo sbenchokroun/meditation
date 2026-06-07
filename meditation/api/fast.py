@@ -1,11 +1,16 @@
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI,Query
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+import ast
+from typing import List, Optional
 
 from meditation.ml_logic.data_load import load_data
-from meditation.interface.main import pred_task1
+from meditation.interface.main import pred_task1 as model_pred_task1
+
+
+
 
 app = FastAPI()
 
@@ -24,7 +29,7 @@ def root():
     return {"greeting": "Hello WORLD!!!!"}
 
 
-# http://127.0.0.1:8000/predict/task1
+# http://127.0.0.1:8000/predict/task1?sujets=1&labels=Medita&labels=slMedita&labels=restCE01&sessions=premedita&window_size=1000&step=1000&start=0
 """
 Make a single course prediction.
 - sujets : liste de int entre 1 et 74
@@ -36,33 +41,29 @@ Make a single course prediction.
 - split permet d'assigner automatiquement des sujets (si sujets=None),
     parmi {'train', 'val', 'test', 'train_small', 'val_small', 'test_small'}
 """
-@app.get("/predict/task1")
+@app.get("/predict/task1", response_model=None)
 def pred_task1(
-            sujets=[1],
-            labels=['Medita', 'slMedita', 'restCE01', 'restCE02', 'restOE'],
-            sessions=['premedita'],
-            window_size=1000,
-            step=1000,
-            start=0,
-            split=None,
-            root=None
-            )-> np.ndarray:
-
-    # 2. Build X_pred as a single-row DataFrame
-
-    X_pred = load_data( sujets=sujets,
-                        labels=labels,
-                        sessions=sessions,
-                        window_size=window_size,
-                        step=step,
-                        start=start,
-                        split=split,
-                        root=Path.cwd()
-                          )
-
-    # 4. Predict using the cached model
-    y_pred = pred_task1(X_pred)
+    sujets: List[str] = Query(default=[]),
+    labels: List[str] = Query(default=[]),
+    sessions: List[str] = Query(default=[]),
+    window_size: int = 1000,
+    step: int = 1000,
+    start: int = 0,
+    split: Optional[str] = None
+):
+    X_test, y_test = load_data(
+        sujets=sujets,
+        labels=labels,
+        sessions=sessions,
+        window_size=window_size,
+        step=step,
+        start=start,
+        split=split,
+        root=Path.cwd()
+    )
 
 
-    # 5. Return JSON response
-    return {"fare": float(y_pred[0][0])}
+    y_pred = model_pred_task1(X_test)
+
+    return {"predictions": y_pred.tolist(),
+            "test": y_test.tolist()}

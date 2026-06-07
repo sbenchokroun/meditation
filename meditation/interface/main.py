@@ -12,7 +12,7 @@ from meditation.ml_logic.data_load import load_data
 from meditation.params import *
 from meditation.ml_logic.registry import save_model
 from meditation.ml_logic.registry import load_model
-
+from meditation.ml_logic.registry import load_scaler
 
 def train_task1() -> float:
     """
@@ -74,15 +74,15 @@ def pred_task1(X_pred: pd.DataFrame = None) -> np.ndarray:
 
 
     model = load_model()
-    assert model is not None
+    scaler = load_scaler()   # charger le scaler sauvegardé
 
-
-
-    X_processed = preprocess_features_extract_psd(X_pred)
+    X_processed = preprocess_features_extract_psd(X_pred, scaler=scaler)
     y_pred = model.predict(X_processed)
-
-    print("\n✅ prediction done: ", y_pred, y_pred.shape, "\n")
     return y_pred
+
+
+
+
 
 def train_task2():
 

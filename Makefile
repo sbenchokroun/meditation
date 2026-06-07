@@ -14,6 +14,9 @@ install_requirements:
 train_task1:
 	python -c 'from meditation.interface.main import train_task1; train_task1()'
 
+run_api:
+	uvicorn meditation.api.fast:app --reload
+
 ################### DATA SOURCES ACTIONS ################
 save_data_into_bucket:
 	python -c 'from meditation.ml_logic.data import save_data_into_bucket; save_data_into_bucket()'
@@ -31,7 +34,7 @@ show_sources_all:
 	-bq show ${BQ_DATASET}.processed_1k
 	-bq show ${BQ_DATASET}.processed_200k
 	-bq show ${BQ_DATASET}.processed_all
-	-gsutil ls gs://${BUCKET_NAME}
+	-gsutil ls gs://${GCS_BUCKET_NAME}
 
 reset_local_files:
 	rm -rf ${ML_DIR}
@@ -60,8 +63,8 @@ reset_bq_files:
 	-bq mk --sync --project_id ${GCP_PROJECT} --location=${BQ_REGION} ${BQ_DATASET}.processed_all
 
 reset_gcs_files:
-	-gsutil rm -r gs://${BUCKET_NAME}
-	-gsutil mb -p ${GCP_PROJECT} -l ${GCP_REGION} gs://${BUCKET_NAME}
+	-gsutil rm -r gs://${GCS_BUCKET_NAME}
+	-gsutil mb -p ${GCP_PROJECT} -l ${GCP_REGION} gs://${GCS_BUCKET_NAME}
 
 reset_all_files: reset_local_files reset_bq_files reset_gcs_files
 

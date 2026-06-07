@@ -8,6 +8,7 @@ from colorama import Fore, Style
 from sklearn.preprocessing import StandardScaler
 from scipy.signal import welch
 
+from meditation.ml_logic.registry import save_scaler, load_scaler
 
 FS = 250
 PSD_BANDS = [(1, 4), (4, 8), (8, 13), (13, 30), (30, 45)]
@@ -37,22 +38,26 @@ def preprocess_normalisation_features(X) -> np.ndarray:
     return X_processed
 
 
-def preprocess_features_extract_psd(X: np.ndarray, bands=PSD_BANDS, fs=FS):
-    """
-    Calcule la puissance moyenne par bande fréquentielle et par canal.
-
-    X      : (N, C, T)   après transpose_if_needed
-    retour : (N, B*C)  = (N, 320)
-    """
-    print(Fore.BLUE + "\nPreprocessing features..." + Style.RESET_ALL)
-    X=transpose_if_needed(X)
-    freqs, psd = welch(X, fs=fs, axis=-1)          # (N, C, F)
+def preprocess_features_extract_psd(X: np.ndarray, bands=PSD_BANDS, fs=FS, scaler=None):
+    X = transpose_if_needed(X)
+    freqs, psd = welch(X, fs=fs, axis=-1)
     features = [
         psd[:, :, (freqs >= lo) & (freqs < hi)].mean(axis=-1)
-        for lo, hi in bands                         # (N, C) par bande
+        for lo, hi in bands
     ]
-    scaler = StandardScaler()
-    return scaler.fit_transform(np.concatenate(features, axis=1))
+    X_features = np.concatenate(features, axis=1)
+
+    if scaler is not None:
+        scaler=load_scaler()
+        X_scaled=scaler.transform(X_features)
+
+    else:
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X_features)  # entraînement
+        save_scaler(scaler)  # ✅ sauvegarder après fit
+
+    return X_scaled
+
 
 def transpose_if_needed(X):
     """(N, T, C) → (N, C, T)  """
