@@ -78,7 +78,7 @@ def load_data(sujets=None,
               split=None,
               root=ROOT) -> tuple:
 
-    """"
+    """
     - renvoie un tuple contenant :
         - X de shape (nb de seq, window_size, nb de canaux=64) contenant la donnée
           séparée de window_size
@@ -91,6 +91,7 @@ def load_data(sujets=None,
     - step correspond au décalage de chaque window
     - split permet d'assigner automatiquement des sujets (si sujets=None),
       parmi {'train', 'val', 'test', 'train_small', 'val_small', 'test_small'}
+    - root le chemin contenant le dossier 'raw'
 
     """
 
@@ -122,9 +123,26 @@ def load_one_subject(sujet=int,
                      step=1000,
                      start=0,
                      root=ROOT,
-                     train_split=float,
+                     train_split=0.8,
                      gap=0
                      ):
+
+    """
+    - renvoie un tuple contenant (X_train, X_test, y_train, y_test):
+        - X de shape (nb de seq, window_size, nb de canaux=64) contenant la donnée
+          séparée de window_size
+        - y de shape (nb de seq,) contenant le label 0 ou 1 (repos ou méditation)
+    - sujets : liste de int entre 1 et 74
+    - labels : liste de str parmi {'Medita', 'slMedita', 'restCE01', 'restCE02', 'restOE'}
+    - sessions : liste de str parmi {'premedita', 'posmedita'}
+    - start correspond au début de la 1ère séquence, par défaut à 0
+    - window_size correspond à la largueur d'une sequence, 1000 points (4s) par défaut
+    - step correspond au décalage de chaque window
+    - root le chemin contenant le dossier 'raw'
+    - train_split est le ratio de données train (entre 0 et 1)
+    - gap est le nombre de données ignorées entre le train et le test
+
+    """
 
     # Get data path
     paths = path_data([sujet], labels, sessions, root)
@@ -156,6 +174,9 @@ def load_one_subject(sujet=int,
 
     return np.array(X_train_final), np.array(X_test_final), np.array(y_train_final), np.array(y_test_final)
 
+
+
+
 def load_train_val_test_one_subject(sujet=int,
                                     labels=['Medita', 'slMedita', 'restCE01', 'restCE02', 'restOE'],
                                     sessions=['premedita'],
@@ -169,14 +190,32 @@ def load_train_val_test_one_subject(sujet=int,
                                     gap_train_test=0
                                     ):
 
+    """
+    - renvoie un tuple contenant (X_train, X_val, X_test, y_train, y_val, y_test):
+        - X de shape (nb de seq, window_size, nb de canaux=64) contenant la donnée
+          séparée de window_size
+        - y de shape (nb de seq,) contenant le label 0 ou 1 (repos ou méditation)
+    - sujets : liste de int entre 1 et 74
+    - labels : liste de str parmi {'Medita', 'slMedita', 'restCE01', 'restCE02', 'restOE'}
+    - sessions : liste de str parmi {'premedita', 'posmedita'}
+    - start correspond au début de la 1ère séquence, par défaut à 0
+    - window_size correspond à la largueur d'une sequence, 1000 points (4s) par défaut
+    - step correspond au décalage de chaque window
+    - root le chemin contenant le dossier 'raw'
+    - train_split est le ratio de données train (entre 0 et 1)
+    - val_split est le ratio de données de validation par rapport aux données train (entre 0 et 1)
+    - gap_train_val est le nombre de données ignorées entre le train et le val
+    - gap_train_test est le nombre de données ignorées entre le train et le test
+
+    """
     # Get data path
     paths = path_data([sujet], labels, sessions, root)
 
     X_train_final = []
-    X_test_final = []
     X_val_final = []
-    y_val_final = []
+    X_test_final = []
     y_train_final = []
+    y_val_final = []
     y_test_final = []
 
     for key, path in paths.items():
@@ -209,3 +248,74 @@ def load_train_val_test_one_subject(sujet=int,
         y_test_final.extend(y_test)
 
     return np.array(X_train_final), np.array(X_val_final), np.array(X_test_final), np.array(y_train_final), np.array(y_val_final), np.array(y_test_final)
+
+
+
+def which_medit(key, data):
+    """
+    renvoie 0 (HK), 1 (SA) ou 2 (BF) selon le label.
+
+    - key est la clé du dictionnaire créé par path_data
+    - data est un DataFrame contenant participant_id de valeur sub-xx ainsi que group correspondant au label
+
+    """
+
+    sujet_str = key.split(sep='_')[0][1:]
+
+    try:
+        group_name = data.loc[data['participant_id']== f'sub-{sujet_str}', 'group'].iloc[0]
+    except IndexError:
+        group_name = None
+
+    if group_name == 'HK':
+        return 0
+    if group_name == 'BF':
+        return 1
+    if group_name == 'SA':
+        return 2
+    else:
+        print(f'subject {sujet_str} does not exist or does not have post-meditation data')
+        return None
+
+
+
+def load_data_task_2(sujets=list, labels=['Medita','slMedita'], window_size=1000, step=1000, start=0, root=ROOT):
+
+    """
+    Load la data de la session post-meditation
+    - renvoie un tuple contenant :
+        - X de shape (nb de seq, window_size, nb de canaux=64) contenant la donnée
+          séparée de window_size
+        - y de shape (nb de seq,) contenant le label 0 (HK), 1 (BF), ou 2 (SA)
+    - sujets : liste de int entre 1 et 74
+    - labels : liste de str parmi {'Medita', 'slMedita'}
+    - start correspond au début de la 1ère séquence, par défaut à 0
+    - window_size correspond à la largueur d'une sequence, 1000 points (4s) par défaut
+    - step correspond au décalage de chaque window
+    - root le chemin contenant le dossier 'raw'
+
+    """
+
+    # Get data paths with posmedita according to task 2
+    paths = path_data(sujets=sujets, labels=labels, sessions=['posmedita'], root=root)
+
+    X_final = []
+    y_final = []
+
+    # Get labels from participants.tsv
+    df = pd.read_csv(f'{root}/raw_data/participants.tsv',sep='\t')
+    df = df.dropna(subset=['post_test'])
+
+    # Append X, y for each selected path
+    for key, path in paths.items():
+        sujet_str = key.split(sep='_')[0][1:]
+        try:
+            data = np.load(path).T
+        except FileNotFoundError:
+            print(f'subject {sujet_str} does not exist or does not have post-meditation data')
+            continue
+        X = np.array(slice_data(data, window_size=window_size, step=step, start=start))
+        y = np.array([which_medit(key, df) for i in range(len(X))])
+        X_final.extend(X)
+        y_final.extend(y)
+    return np.array(X_final), np.array(y_final)
