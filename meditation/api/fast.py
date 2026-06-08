@@ -1,10 +1,8 @@
-import numpy as np
-import pandas as pd
 from fastapi import FastAPI,Query
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-import ast
 from typing import List, Optional
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 from meditation.ml_logic.data_load import load_data
 from meditation.interface.main import pred_task1 as model_pred_task1
@@ -66,4 +64,7 @@ def pred_task1(
     y_pred = model_pred_task1(X_test)
 
     return {"predictions": y_pred.tolist(),
-            "test": y_test.tolist()}
+            "test": y_test.tolist(),
+           "accuracy_score": accuracy_score(y_test, y_pred),
+           "classification_report": classification_report(y_test, y_pred, output_dict=True),
+          "Confusion_matrix": confusion_matrix(y_test, y_pred).tolist()}
