@@ -119,7 +119,9 @@ def train_task2():
 
     # Create (X_train_processed, y_train, X_val_processed, y_val)
 
-    X_train,y_train = load_data_task_2(sujets=[i for i in range(1, 40) if i not in (28, 46, 53,43)], labels=['slMedita','Medita'])
+    X_train,y_train = load_data_task_2(sujets=[i for i in range(1, 40) if i not in (28, 46, 53,43)],
+                                       labels=['slMedita','Medita'],
+                                       root=Path.cwd())
 
 
     X_val ,y_val = load_data_task_2(sujets=[28, 46, 53], labels=['slMedita','Medita'])
@@ -132,7 +134,7 @@ def train_task2():
     model = load_model(model_type="inter_task2")
 
     if model is None:
-        model =SVC(kernel='linear', C=1.0, gamma='scale', probability=True)
+        model =SVC(kernel="linear", C=1.0)
 
     model.fit(X_preprocess, y_train)
 
