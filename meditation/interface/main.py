@@ -60,18 +60,18 @@ def train_task1_intra() -> float:
     print()
     print("\n✅ accuracy: ", accuracy, "\n")
 
-    return accuracy, X_val_sca
+    return accuracy
 
 
 
-def train_task1_inter() -> float:
+def train_task1_inter():
     """
-    - implementation for task1 en intra avec un seul participant
+    - implementation for task1 en inter avec plusieurs participants
     - Download processed data
     - Train on the preprocessed dataset
     - Store training results and model weights
 
-    Return accuracy as a float
+    Return X_preprocess
     """
 
     print(Fore.MAGENTA + "\n⭐️ Use case: train" + Style.RESET_ALL)
@@ -104,10 +104,10 @@ def train_task1_inter() -> float:
 
 
 
-def train_task2():
+def train_task2() -> float:
 
     """
-    - implementation for task1 et task2 en inter avec plusieurs particiapants
+    - implementation for task2 en inter avec plusieurs particiapants
     - Download processed data
     - Train on the preprocessed dataset
     - Store training results and model weights
@@ -152,12 +152,12 @@ def train_task2():
     print()
     print("\n✅ accuracy: ", accuracy, "\n")
 
-    return accuracy, X_val_sca
+    return accuracy
 
 
 def pred(X_pred,model_type="intra_task1") -> np.ndarray:
     """
-    Make a prediction using the latest trained model for task 1
+    Make a prediction using the latest trained model for task
     """
 
     print("\n⭐️ Use case: predict")
