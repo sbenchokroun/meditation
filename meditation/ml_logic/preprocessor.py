@@ -5,10 +5,8 @@
 import numpy as np
 import pandas as pd
 from colorama import Fore, Style
-from sklearn.preprocessing import StandardScaler
 from scipy.signal import welch
 
-from meditation.ml_logic.registry import save_scaler, load_scaler
 
 FS = 250
 PSD_BANDS = [(1, 4), (4, 8), (8, 13), (13, 30), (30, 45)]
@@ -37,36 +35,34 @@ def preprocess_normalisation_features(X) -> np.ndarray:
     print("✅ X_processed, with shape", X_processed.shape)
     return X_processed
 
+# Pré-calculer les masques de fréquences une seule fois
+def _build_band_masks(freqs, bands):
+    return [(freqs >= lo) & (freqs < hi) for lo, hi in bands]
 
-def preprocess_features_extract_psd(X: np.ndarray, bands=PSD_BANDS, fs=FS, scaler=None):
+
+def preprocess_features_extract_psd(X, bands=PSD_BANDS, fs=FS, nperseg=None, batch_size=64):
     """
-    Calcule la puissance moyenne par bande fréquentielle et par canal.
+    X : (N, C, T)
+    returns : (N, B*C)  →  (N, 320)
 
-    X      : (N, C, T)   après transpose_if_needed
-    retour : (N, B*C)  = (N, 320)
+    batch_size : nb de trials traités à la fois (réduit le pic RAM)
     """
-    X = transpose_if_needed(X)
-    freqs, psd = welch(X, fs=fs, axis=-1)
-    features = [
-        psd[:, :, (freqs >= lo) & (freqs < hi)].mean(axis=-1)
-        for lo, hi in bands
-    ]
-    X_features = np.concatenate(features, axis=1)
+    N, C, T = X.shape
+    n_bands = len(bands)
+    out = np.empty((N, n_bands * C), dtype=np.float32)
 
-    if scaler is not None:
-        scaler=load_scaler()
-        X_scaled=scaler.transform(X_features)
+    # Calculer welch sur un seul trial pour récupérer les fréquences
+    freqs, _ = welch(X[0], fs=fs, nperseg=nperseg, axis=-1)
+    masks = _build_band_masks(freqs, bands)
 
-    else:
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X_features)  # entraînement
-        save_scaler(scaler)  # ✅ sauvegarder après fit
+    for start in range(0, N, batch_size):
+        end = min(start + batch_size, N)
+        _, psd_batch = welch(X[start:end], fs=fs, nperseg=nperseg, axis=-1)
+        # psd_batch : (batch, C, F)
 
-    return X_scaled
+        features = [psd_batch[:, :, mask].mean(axis=-1) for mask in masks]
+        out[start:end] = np.concatenate(features, axis=1)
 
+        del psd_batch  # libère explicitement le batch
 
-def transpose_if_needed(X):
-    """(N, T, C) → (N, C, T)  """
-    if X.shape[1] != 64:
-        return X.transpose(0, 2, 1)
-    return X
+    return out
