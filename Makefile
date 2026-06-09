@@ -11,8 +11,14 @@ install_requirements:
 
 
 ################### MAIN ACTIONS ################
-train_task1:
-	python -c 'from meditation.interface.main import train_task1; train_task1()'
+train_task1_inter:
+	python -c 'from meditation.interface.main import train_task1_inter; train_task1_inter()'
+
+train_task1_intra:
+	python -c 'from meditation.interface.main import train_task1_intra; train_task1_intra()'
+
+train_task2:
+	python -c 'from meditation.interface.main import train_task2; train_task2()'
 
 run_api:
 	uvicorn meditation.api.fast:app --reload
