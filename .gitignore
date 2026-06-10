@@ -1,5 +1,6 @@
 # Environments
 .env
+.env.yaml
 .venv
 .envrc
 env/
