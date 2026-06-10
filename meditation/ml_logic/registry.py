@@ -28,7 +28,7 @@ def save_model(model: keras.Model = None, model_type: ModelType = "inter_task1")
     # Save model locally
     model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", model_type, f"{timestamp}.h5")
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
-    model.save(model, model_path)
+    joblib.dump(model, model_path)
 
     print(f"✅ Model saved locally ({model_type})")
 
