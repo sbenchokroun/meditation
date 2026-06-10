@@ -62,31 +62,31 @@ def predict_task1_intra(file: UploadFile = File(...)):
 
     return {"prediction": prediction}
 
-# @app.post("/predict/task_inter")
-# def predict_task1_inter(file: UploadFile = File(...)):
-#     if not file.filename.endswith(".npy"):
-#         raise HTTPException(status_code=400, detail="Le fichier doit être un .npy")
+@app.post("/predict/task_inter")
+def predict_task1_inter(file: UploadFile = File(...)):
+    if not file.filename.endswith(".npy"):
+        raise HTTPException(status_code=400, detail="Le fichier doit être un .npy")
 
-#     try:
-#         X_test = np.load(file.file, allow_pickle=False)
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=f"Impossible de lire le numpy array: {e}")
-#     if X_test.ndim != 3 or X_test.shape[1:] != (1000, 64):
-#         raise HTTPException(
-#             status_code=400,
-#             detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
-#         )
+    try:
+        X_test = np.load(file.file, allow_pickle=False)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Impossible de lire le numpy array: {e}")
+    if X_test.ndim != 3 or X_test.shape[1:] != (1000, 64):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
+        )
 
-#     results = pred(X_test, 'inter_task1')
+    results = pred(X_test, 'inter_task1')
 
-#     prediction = int(np.bincount(results).argmax())
+    prediction = int(np.bincount(results).argmax())
 
-#     # if prediction == 1:
-#     #     results_medita = pred(X_test, 'inter_task2')
-#     #     prediction_medita = int(np.bincount(results_medita).argmax())
-#     #     return {"prediction" : prediction, "type de meditation" : prediction_medita}
+    if prediction == 1:
+        results_medita = pred(X_test, 'inter_task2')
+        prediction_medita = int(np.bincount(results_medita).argmax())
+        return {"prediction" : prediction, "type de meditation" : prediction_medita}
 
-#     return {"prediction" : prediction}
+    return {"prediction" : prediction}
 
 @app.post("/predict/task2_inter")
 def predict_task2_inter(file: UploadFile = File(...)):
