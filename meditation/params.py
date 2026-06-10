@@ -19,7 +19,8 @@ TEST_SMALL = np.arange(26,31)
 
 ##################  CONSTANTS  #####################
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), ".meditation", "mlops", "data")
-LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".meditation", "mlops", "training_outputs")
+# LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".meditation", "mlops", "training_outputs") # local
+LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'))
 
 ROOT = Path.cwd().parent
 

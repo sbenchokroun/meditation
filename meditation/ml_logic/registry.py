@@ -34,7 +34,7 @@ def save_model(model: keras.Model = None, model_type: ModelType = "inter_task1")
 
     if MODEL_TARGET == "gcs":
         model_filename = model_path.split("/")[-1]
-        client = storage.Client()
+        client = storage.Client(project=GCP_PROJECT_ID)
         bucket = client.bucket(GCS_BUCKET_NAME)
         blob = bucket.blob(f"models/{model_type}/{model_filename}")
         blob.upload_from_filename(model_path)
@@ -71,7 +71,7 @@ def load_model(model_type: ModelType = "inter_task1") -> keras.Model:
     elif MODEL_TARGET == "gcs":
         print(Fore.BLUE + f"\nLoad latest {model_type} model from GCS..." + Style.RESET_ALL)
 
-        client = storage.Client()
+        client = storage.Client(project=GCP_PROJECT_ID)
         blobs = list(client.get_bucket(GCS_BUCKET_NAME).list_blobs(prefix=f"models/{model_type}"))
 
         try:
@@ -80,7 +80,7 @@ def load_model(model_type: ModelType = "inter_task1") -> keras.Model:
             os.makedirs(os.path.dirname(latest_model_path_to_save), exist_ok=True)
             latest_blob.download_to_filename(latest_model_path_to_save)
 
-            latest_model = keras.models.load_model(latest_model_path_to_save)
+            atest_model = joblib.load(latest_model_path_to_save)
 
             print(f"✅ Latest {model_type} model downloaded from GCS")
             return latest_model
