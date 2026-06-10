@@ -164,14 +164,13 @@ def train_task2() -> float:
     return accuracy
 
 
-def pred(X_pred,model_type="intra_task1") -> np.ndarray:
+def pred(X_pred, model) -> np.ndarray:
     """
     Make a prediction using the latest trained model for task
     """
 
     print("\n⭐️ Use case: predict")
 
-    model = load_model(model_type=model_type)
     X_processed = preprocess_features_extract_psd(X_pred)
     y_pred = model.predict(X_processed)
     return y_pred

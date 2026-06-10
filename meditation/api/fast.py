@@ -7,7 +7,7 @@ import numpy as np
 
 from meditation.ml_logic.data_load import load_data
 from meditation.interface.main import pred
-
+from meditation.ml_logic.registry import load_model
 
 
 
@@ -21,6 +21,9 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+app.state.model1=load_model('intra_task1')
+app.state.model2=load_model('inter_task2')
 
 
 @app.get("/")
@@ -56,7 +59,7 @@ def predict_task1_intra(file: UploadFile = File(...)):
             detail=f"Shape invalide: {arr.shape}. Attendu: (x, 1000, 64)"
         )
 
-    results = pred(arr, 'intra_task1')
+    results = pred(arr, app.state.model1)
 
     prediction = int(np.bincount(results).argmax())
 
@@ -103,6 +106,6 @@ def predict_task2_inter(file: UploadFile = File(...)):
             detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
         )
 
-    results_medita = pred(X_test, 'inter_task2')
+    results_medita = pred(X_test, app.state.model2)
     prediction_medita = int(np.bincount(results_medita).argmax())
     return {"type de meditation" : prediction_medita}
