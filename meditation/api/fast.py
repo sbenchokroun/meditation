@@ -1,11 +1,12 @@
-from fastapi import FastAPI,Query
+from fastapi import FastAPI, Query, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from typing import List, Optional
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import numpy as np
 
 from meditation.ml_logic.data_load import load_data
-from meditation.interface.main import pred_task1 as model_pred_task1
+from meditation.interface.main import pred
 
 
 
@@ -39,32 +40,69 @@ Make a single course prediction.
 - split permet d'assigner automatiquement des sujets (si sujets=None),
     parmi {'train', 'val', 'test', 'train_small', 'val_small', 'test_small'}
 """
-@app.get("/predict/task1", response_model=None)
-def pred_task1(
-    sujets: List[str] = Query(default=[]),
-    labels: List[str] = Query(default=[]),
-    sessions: List[str] = Query(default=[]),
-    window_size: int = 1000,
-    step: int = 1000,
-    start: int = 0,
-    split: Optional[str] = None
-):
-    X_test, y_test = load_data(
-        sujets=sujets,
-        labels=labels,
-        sessions=sessions,
-        window_size=window_size,
-        step=step,
-        start=start,
-        split=split,
-        root=Path.cwd()
-    )
 
+@app.post("/predict/task1_intra")
+def predict_task1_intra(file: UploadFile = File(...)):
+    if not file.filename.endswith(".npy"):
+        raise HTTPException(status_code=400, detail="Le fichier doit être un .npy")
 
-    y_pred = model_pred_task1(X_test)
+    try:
+        arr = np.load(file.file, allow_pickle=False)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Impossible de lire le numpy array: {e}")
+    if arr.ndim != 3 or arr.shape[1:] != (1000, 64):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Shape invalide: {arr.shape}. Attendu: (x, 1000, 64)"
+        )
 
-    return {"predictions": y_pred.tolist(),
-            "test": y_test.tolist(),
-           "accuracy_score": accuracy_score(y_test, y_pred),
-           "classification_report": classification_report(y_test, y_pred, output_dict=True),
-          "Confusion_matrix": confusion_matrix(y_test, y_pred).tolist()}
+    results = pred(arr, 'intra_task1')
+
+    prediction = int(np.bincount(results).argmax())
+
+    return {"prediction": prediction}
+
+@app.post("/predict/task_inter")
+def predict_task1_inter(file: UploadFile = File(...)):
+    if not file.filename.endswith(".npy"):
+        raise HTTPException(status_code=400, detail="Le fichier doit être un .npy")
+
+    try:
+        X_test = np.load(file.file, allow_pickle=False)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Impossible de lire le numpy array: {e}")
+    if X_test.ndim != 3 or X_test.shape[1:] != (1000, 64):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
+        )
+
+    results = pred(X_test, 'inter_task1')
+
+    prediction = int(np.bincount(results).argmax())
+
+    # if prediction == 1:
+    #     results_medita = pred(X_test, 'inter_task2')
+    #     prediction_medita = int(np.bincount(results_medita).argmax())
+    #     return {"prediction" : prediction, "type de meditation" : prediction_medita}
+
+    return {"prediction" : prediction}
+
+@app.post("/predict/task2_inter")
+def predict_task2_inter(file: UploadFile = File(...)):
+    if not file.filename.endswith(".npy"):
+        raise HTTPException(status_code=400, detail="Le fichier doit être un .npy")
+
+    try:
+        X_test = np.load(file.file, allow_pickle=False)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Impossible de lire le numpy array: {e}")
+    if X_test.ndim != 3 or X_test.shape[1:] != (1000, 64):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
+        )
+
+    results_medita = pred(X_test, 'inter_task2')
+    prediction_medita = int(np.bincount(results_medita).argmax())
+    return {"type de meditation" : prediction_medita}

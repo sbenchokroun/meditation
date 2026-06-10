@@ -78,10 +78,10 @@ def train_task1_inter():
 
     # Create (X_train_processed, y_train, X_val_processed, y_val)
 
-    X_train ,y_train = load_data(sujets=[i for i in range(1, 74) if i != 43],
-                                labels=['Medita', 'restCE01', 'restOE','slMedita', 'restCE02'],
-                                sessions=['premedita','posmedita'],
-                                window_size=1000, step= 250,
+    X_train ,y_train = load_data(sujets=[i for i in range(1, 21)],
+                                labels=['Medita', 'restCE01', 'restOE'],
+                                sessions=['posmedita'],
+                                window_size=1000, step= 0,
                                 start=4, root=Path.cwd())
 
 
@@ -165,4 +165,5 @@ def pred(X_pred,model_type="intra_task1") -> np.ndarray:
     model = load_model(model_type=model_type)
     X_processed = preprocess_features_extract_psd(X_pred)
     y_pred = model.predict(X_processed)
+
     return y_pred
