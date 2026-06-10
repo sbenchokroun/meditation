@@ -3,7 +3,6 @@ import pandas as pd
 
 from pathlib import Path
 from colorama import Fore, Style
-from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
@@ -78,16 +77,17 @@ def train_task1_inter():
 
     # Create (X_train_processed, y_train, X_val_processed, y_val)
 
-    X_train ,y_train = load_data(sujets=[i for i in range(1, 74) if i != 43],
-                                labels=['Medita', 'restCE01', 'restOE','slMedita', 'restCE02'],
-                                sessions=['premedita','posmedita'],
+    X_train ,y_train = load_data(sujets=[i for i in range(1, 20) ],
+                                labels=['Medita', 'restCE01'],
+                                sessions=['posmedita'],
                                 window_size=1000, step= 250,
                                 start=4, root=Path.cwd())
 
+    X_val ,y_val = load_data_task_2(sujets=[28, 46, 53], labels=['slMedita','Medita'])
 
     X_preprocess = preprocess_features_extract_psd(X_train)
 
-    # Train model using `model.py`
+       # Train model using `model.py`
     model = load_model(model_type="inter_task1")
 
     if model is None:
@@ -100,7 +100,16 @@ def train_task1_inter():
     save_model(model=model,model_type="inter_task1")
 
 
-    return X_preprocess
+    X_val_sca= preprocess_features_extract_psd(X_val)
+
+    y_pred= model.predict(X_val_sca)
+
+    accuracy=accuracy_score(y_val, y_pred)
+
+    print()
+    print("\n✅ accuracy: ", accuracy, "\n")
+
+    return accuracy
 
 
 
