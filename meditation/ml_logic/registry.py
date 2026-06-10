@@ -80,7 +80,7 @@ def load_model(model_type: ModelType = "inter_task1") -> keras.Model:
             os.makedirs(os.path.dirname(latest_model_path_to_save), exist_ok=True)
             latest_blob.download_to_filename(latest_model_path_to_save)
 
-            atest_model = joblib.load(latest_model_path_to_save)
+            latest_model = joblib.load(latest_model_path_to_save)
 
             print(f"✅ Latest {model_type} model downloaded from GCS")
             return latest_model
