@@ -109,6 +109,6 @@ def predict_task2_inter(file: UploadFile = File(...)):
             detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
         )
 
-    results_medita = pred(X_test, app.state.model2)
+    results_medita = pred(X_test, app.state.model_inter_task2)
     prediction_medita = int(np.bincount(results_medita).argmax())
     return {"type de meditation" : prediction_medita}
