@@ -54,7 +54,6 @@ def load_model(model_type: ModelType = "inter_task1") -> keras.Model:
     """
 
     if MODEL_TARGET == "local":
-        print(Fore.BLUE + f"\nLoad latest {model_type} model from local registry..." + Style.RESET_ALL)
 
         local_model_directory = os.path.join(LOCAL_REGISTRY_PATH, "models", model_type)
         local_model_paths = glob.glob(f"{local_model_directory}/*")
@@ -62,6 +61,7 @@ def load_model(model_type: ModelType = "inter_task1") -> keras.Model:
         if not local_model_paths:
             return None
 
+        print(Fore.BLUE + f"\nLoad latest {model_type} model from local registry..." + Style.RESET_ALL)
         most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
         latest_model = joblib.load(most_recent_model_path_on_disk)
 
@@ -69,12 +69,13 @@ def load_model(model_type: ModelType = "inter_task1") -> keras.Model:
         return latest_model
 
     elif MODEL_TARGET == "gcs":
-        print(Fore.BLUE + f"\nLoad latest {model_type} model from GCS..." + Style.RESET_ALL)
 
         client = storage.Client(project=GCP_PROJECT_ID)
         blobs = list(client.get_bucket(GCS_BUCKET_NAME).list_blobs(prefix=f"models/{model_type}"))
 
         try:
+            print(Fore.BLUE + f"\nLoad latest {model_type} model from GCS..." + Style.RESET_ALL)
+
             latest_blob = max(blobs, key=lambda x: x.updated)
             latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name)
             os.makedirs(os.path.dirname(latest_model_path_to_save), exist_ok=True)

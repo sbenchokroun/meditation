@@ -36,7 +36,6 @@ def train_task1_intra() -> float:
     X_preprocess = preprocess_features_extract_psd(X_train)
 
 
-
     # Train model using `model.py`
     model = load_model(model_type="intra_task1")
 
@@ -83,15 +82,12 @@ def train_task1_inter():
                                 window_size=1000, step= 250,
                                 start=4, root=Path.cwd())
 
-    X_val ,y_val = load_data_task_2(sujets=[28, 46, 53], labels=['slMedita','Medita'])
+
 
     X_preprocess = preprocess_features_extract_psd(X_train)
 
-       # Train model using `model.py`
-    model = load_model(model_type="inter_task1")
 
-    if model is None:
-        model =SVC(kernel="linear", C=1.0)
+    model =SVC(kernel="linear", C=16, max_iter=10000)
 
     model.fit(X_preprocess, y_train)
 
@@ -99,7 +95,7 @@ def train_task1_inter():
     # Save model weight on the hard drive (and optionally on GCS too!)
     save_model(model=model,model_type="inter_task1")
 
-
+    X_val ,y_val = load_data_task_2(sujets=[28, 46, 53], labels=['slMedita','Medita'])
     X_val_sca= preprocess_features_extract_psd(X_val)
 
     y_pred= model.predict(X_val_sca)
@@ -132,14 +128,9 @@ def train_task2() -> float:
                                        labels=['slMedita','Medita'],
                                        root=Path.cwd())
 
-
-    X_val ,y_val = load_data_task_2(sujets=[28, 46, 53], labels=['slMedita','Medita'])
-
     X_preprocess = preprocess_features_extract_psd(X_train)
 
-
-
-    # Train model using `model.py`
+        # Train model using `model.py`
     model = load_model(model_type="inter_task2")
 
     if model is None:
@@ -151,6 +142,7 @@ def train_task2() -> float:
     # Save model weight on the hard drive (and optionally on GCS too!)
     save_model(model=model,model_type="inter_task2")
 
+    X_val ,y_val = load_data_task_2(sujets=[28, 46, 53], labels=['slMedita','Medita'])
 
     X_val_sca= preprocess_features_extract_psd(X_val)
 

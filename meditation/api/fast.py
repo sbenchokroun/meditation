@@ -22,8 +22,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-app.state.model1=load_model('intra_task1')
-app.state.model2=load_model('inter_task2')
+app.state.model_intra_task1=load_model('intra_task1')
+app.state.model_inter_task1=load_model('inter_task1')
+app.state.model_inter_task2=load_model('inter_task2')
+
 
 
 @app.get("/")
@@ -59,7 +61,7 @@ def predict_task1_intra(file: UploadFile = File(...)):
             detail=f"Shape invalide: {arr.shape}. Attendu: (x, 1000, 64)"
         )
 
-    results = pred(arr, app.state.model1)
+    results = pred(arr, app.state.model_intra_task1)
 
     prediction = int(np.bincount(results).argmax())
 
@@ -80,13 +82,14 @@ def predict_task1_inter(file: UploadFile = File(...)):
             detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
         )
 
-    results = pred(X_test, 'inter_task1')
+    results = pred(X_test, app.state.model_inter_task1)
 
     prediction = int(np.bincount(results).argmax())
 
     if prediction == 1:
-        results_medita = pred(X_test, 'inter_task2')
+        results_medita = pred(X_test, app.state.model_inter_task2)
         prediction_medita = int(np.bincount(results_medita).argmax())
+
         return {"prediction" : prediction, "type de meditation" : prediction_medita}
 
     return {"prediction" : prediction}
@@ -106,6 +109,6 @@ def predict_task2_inter(file: UploadFile = File(...)):
             detail=f"Shape invalide: {X_test.shape}. Attendu: (x, 1000, 64)"
         )
 
-    results_medita = pred(X_test, app.state.model2)
+    results_medita = pred(X_test, app.state.model_inter_task2)
     prediction_medita = int(np.bincount(results_medita).argmax())
     return {"type de meditation" : prediction_medita}
